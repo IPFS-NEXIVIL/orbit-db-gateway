@@ -51,14 +51,12 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	configDir, exist := os.LookupEnv("XDG_CONFIG_HOME")
-	if exist == false {
-		configDir, exist = os.LookupEnv("HOME")
-		if exist == false {
-			return nil, errors.New("No XDG_CONFIG_HOME or HOME set!")
-		}
-		configDir = filepath.Join(configDir, ".config")
+	configDir, err := os.Getwd()
+	if err != nil {
+		return nil, err
 	}
+
+	configDir = filepath.Join(configDir, ".config")
 	os.MkdirAll(configDir, 0755)
 
 	configFile := filepath.Join(configDir, "nexivil.toml")
@@ -78,7 +76,7 @@ func LoadConfig() (*Config, error) {
 	cfg.Shortcuts = make(map[string]string)
 	_, err = toml.Decode(string(configFileContent), &cfg)
 	if err != nil {
-		return nil, errors.New("The config could not be parsed, make sure it is valid TOML and you don't have double assignments.")
+		return nil, errors.New("the config could not be parsed, make sure it is valid toml and you don't have double assignments")
 	}
 
 	cfg.ConfigFile = configFile
@@ -177,13 +175,10 @@ func (cfg *Config) Setup() error {
 
 	currentPath, err := os.Getwd()
 	if err != nil {
-		return err
+		return nil
 	}
 
-	cacheDir, exist := os.LookupEnv("XDG_CACHE_HOME")
-	if exist == false {
-		cacheDir = filepath.Join(currentPath, ".cache")
-	}
+	cacheDir := filepath.Join(currentPath, ".cache")
 
 	defaultDatabaseCachePath := filepath.Join(cacheDir, "nexivil", "database")
 	// Migration step from old CachePath to new DatabaseCachePath
