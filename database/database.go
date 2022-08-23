@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"log"
 	"sort"
 	"sync"
 	"time"
@@ -46,6 +47,7 @@ func (db *Database) init() error {
 
 	ctx := context.Background()
 
+	log.Println("initializing NewOrbitDB ...")
 	db.Logger.Debug("initializing NewOrbitDB ...")
 	db.OrbitDB, err = orbitdb.NewOrbitDB(ctx, db.IPFSCoreAPI, &orbitdb.NewOrbitDBOptions{
 		Directory: &db.CachePath,
@@ -63,24 +65,28 @@ func (db *Database) init() error {
 		},
 	}
 
-	if err != nil {
-		return err
-	}
-
 	storetype := "docstore"
-	db.Logger.Debug("initializing OrbitDB.Docs ...")
-	db.Store, err = db.OrbitDB.Docs(ctx, db.ConnectionString, &orbitdb.CreateDBOptions{
+	log.Println("initializing OrbitDB.Docs ...")
+	db.Store, err = db.OrbitDB.Docs(ctx, db.CachePath, &orbitdb.CreateDBOptions{
 		AccessController:  ac,
 		StoreType:         &storetype,
 		StoreSpecificOpts: documentstore.DefaultStoreOptsForMap("id"),
 		Timeout:           time.Second * 600,
+		Directory:         &db.CachePath,
 	})
 	if err != nil {
-		return err
+		log.Fatalf("%s, %s", err, db.CachePath)
 	}
 
+	log.Printf("%s", db.Store.Address().String())
+
+	log.Println("subscribing to EventBus ...")
 	db.Logger.Debug("subscribing to EventBus ...")
 	db.Events, err = db.Store.EventBus().Subscribe(new(stores.EventReady))
+	if err != nil {
+		return nil
+	}
+
 	return nil
 }
 
@@ -112,8 +118,10 @@ func (db *Database) connectToPeers() error {
 			err := db.IPFSCoreAPI.Swarm().Connect(db.ctx, *peerInfo)
 			if err != nil {
 				db.Logger.Error("failed to connect", zap.String("peerID", peerInfo.ID.String()), zap.Error(err))
+				log.Printf("failed to connect to %s: %s", peerInfo.ID, err)
 			} else {
 				db.Logger.Debug("connected!", zap.String("peerID", peerInfo.ID.String()))
+				log.Printf("connect to %s", peerInfo.ID)
 			}
 		}(&peerInfo)
 	}
@@ -160,6 +168,7 @@ func NewDatabase(
 func (db *Database) Connect(onReady func(address string)) error {
 	var err error
 
+	log.Println("connecting to peers ...")
 	db.Logger.Info("connecting to peers ...")
 	err = db.connectToPeers()
 	if err != nil {
@@ -168,6 +177,7 @@ func (db *Database) Connect(onReady func(address string)) error {
 		db.Logger.Debug("connected to peer!")
 	}
 
+	log.Println("initializing database connection ...")
 	db.Logger.Info("initializing database connection ...")
 	err = db.init()
 	if err != nil {
@@ -175,6 +185,7 @@ func (db *Database) Connect(onReady func(address string)) error {
 		return err
 	}
 
+	log.Println("running ...")
 	db.Logger.Info("running ...")
 
 	go func() {
@@ -198,6 +209,7 @@ func (db *Database) Connect(onReady func(address string)) error {
 		return err
 	}
 
+	log.Println("connect done")
 	db.Logger.Debug("connect done")
 	return nil
 }

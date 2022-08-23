@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	if cfg.WasSetup() == false {
+	if !cfg.WasSetup() {
 		cfg.Setup()
 	}
 
@@ -69,6 +69,14 @@ func main() {
 		log.Panicln(err)
 	}
 	defer db.Disconnect()
+
+	log.Println("connecting database ...")
+	err = db.Connect(func(address string) {
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+	log.Println("connecting database end")
 
 	// Create content storage directories
 	if err := os.MkdirAll(path.Join("files", "text"), 0755); err != nil {
