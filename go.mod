@@ -2,6 +2,8 @@ module github.com/IPFS-NEXIVIL/orbit-db-gateway
 
 go 1.18
 
+replace berty.tech/go-orbit-db => ./go-orbit-db
+
 require (
 	berty.tech/go-orbit-db v1.17.1
 	github.com/BurntSushi/toml v1.2.0
@@ -11,7 +13,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/ipfs/go-ipfs v0.12.2
 	github.com/ipfs/go-ipfs-config v0.18.0
-	github.com/ipfs/go-ipfs-files v0.0.9
 	github.com/ipfs/interface-go-ipfs-core v0.5.2
 	github.com/libp2p/go-libp2p-core v0.13.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -83,6 +84,7 @@ require (
 	github.com/ipfs/go-ipfs-ds-help v1.1.0 // indirect
 	github.com/ipfs/go-ipfs-exchange-interface v0.1.0 // indirect
 	github.com/ipfs/go-ipfs-exchange-offline v0.1.1 // indirect
+	github.com/ipfs/go-ipfs-files v0.0.9 // indirect
 	github.com/ipfs/go-ipfs-keystore v0.0.2 // indirect
 	github.com/ipfs/go-ipfs-pinner v0.2.1 // indirect
 	github.com/ipfs/go-ipfs-posinfo v0.0.1 // indirect

@@ -3,10 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 
-	files "github.com/ipfs/go-ipfs-files"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
@@ -61,19 +59,19 @@ func createNode(ctx context.Context, repoPath string) (*core.IpfsNode, icore.Cor
 	return node, coreAPI, nil
 }
 
-func getUnixfsNode(path string) (files.Node, error) {
-	st, err := os.Stat(path)
-	if err != nil {
-		return nil, err
-	}
+// func getUnixfsNode(path string) (files.Node, error) {
+// 	st, err := os.Stat(path)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	f, err := files.NewSerialFile(path, false, st)
-	if err != nil {
-		return nil, err
-	}
+// 	f, err := files.NewSerialFile(path, false, st)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return f, nil
-}
+// 	return f, nil
+// }
 
 func structToMap(v interface{}) (map[string]interface{}, error) {
 	vMap := &map[string]interface{}{}

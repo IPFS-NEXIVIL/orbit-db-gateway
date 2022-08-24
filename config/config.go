@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -162,6 +163,8 @@ func (cfg *Config) WasSetup() bool {
 
 func (cfg *Config) Setup() error {
 	fmt.Printf("\nNEXIVIL\n\nInitial Setup\n-------------\n\n")
+
+	log.Println("..")
 
 	defaultConnectionString := "/orbitdb/bafyreifdpagppa7ve45odxuvudz5snbzcybwyfer777huckl4li4zbc5k4/nexivil"
 	if cfg.ConnectionString != "" {

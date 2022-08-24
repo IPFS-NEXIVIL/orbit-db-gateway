@@ -65,14 +65,16 @@ func (db *Database) init() error {
 		},
 	}
 
+	address := "nexivil"
+
 	storetype := "docstore"
 	log.Println("initializing OrbitDB.Docs ...")
-	db.Store, err = db.OrbitDB.Docs(ctx, db.CachePath, &orbitdb.CreateDBOptions{
+	db.Logger.Debug("initializing OrbitDB.Docs ...")
+	db.Store, err = db.OrbitDB.Docs(ctx, address, &orbitdb.CreateDBOptions{
 		AccessController:  ac,
 		StoreType:         &storetype,
 		StoreSpecificOpts: documentstore.DefaultStoreOptsForMap("id"),
 		Timeout:           time.Second * 600,
-		Directory:         &db.CachePath,
 	})
 	if err != nil {
 		log.Fatalf("%s, %s", err, db.CachePath)

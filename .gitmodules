@@ -1,0 +1,3 @@
+[submodule "go-orbit-db"]
+	path = go-orbit-db
+	url = https://github.com/berty/go-orbit-db.git
