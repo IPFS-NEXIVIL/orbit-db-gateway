@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"log"
-	"sort"
 	"sync"
 	"time"
 
@@ -222,7 +221,7 @@ func (db *Database) Disconnect() {
 	db.OrbitDB.Close()
 }
 
-func (db *Database) SubmitArticle(article *models.Data) error {
+func (db *Database) SubmitData(article *models.Data) error {
 	entity, err := structToMap(*article)
 	if err != nil {
 		return err
@@ -246,69 +245,4 @@ func (db *Database) GetDataByID(id string) (models.Data, error) {
 	}
 
 	return data, nil
-}
-
-func (db *Database) ListData() ([]*models.Data, []*models.Data, error) {
-	var articles []*models.Data
-	var articlesMap map[string]*models.Data
-
-	articlesMap = make(map[string]*models.Data)
-
-	_, err := db.Store.Query(db.ctx, func(e interface{}) (bool, error) {
-		entity := e.(map[string]interface{})
-		if entity["type"] == "data" {
-			var data models.Data
-			err := mapstructure.Decode(entity, &data)
-			if err == nil {
-				// TODO: Not sure why mapstructure won't convert this field and simply
-				//       leave it ""
-				if entity["in-reply-to-id"] != nil {
-					data.InReplyToID = entity["in-reply-to-id"].(string)
-				}
-				db.Cache.LoadArticle(&data)
-				articles = append(articles, &data)
-				articlesMap[data.ID] = articles[(len(articles) - 1)]
-			}
-			return true, err
-		}
-		return false, nil
-	})
-	if err != nil {
-		return articles, nil, err
-	}
-
-	sort.SliceStable(articles, func(i, j int) bool {
-		return articles[i].Date > articles[j].Date
-	})
-
-	var articlesRoots []*models.Data
-	for i := 0; i < len(articles); i++ {
-		if articles[i].InReplyToID != "" {
-			inReplyTo := articles[i].InReplyToID
-			if _, exist := articlesMap[inReplyTo]; exist == true {
-
-				(*articlesMap[inReplyTo]).Replies =
-					append((*articlesMap[inReplyTo]).Replies, articles[i])
-				(*articlesMap[inReplyTo]).LatestReply = articles[i].Date
-				continue
-			}
-		}
-		articlesRoots = append(articlesRoots, articles[i])
-	}
-
-	sort.SliceStable(articlesRoots, func(i, j int) bool {
-		iLatest := articlesRoots[i].LatestReply
-		if iLatest <= 0 {
-			iLatest = articlesRoots[i].Date
-		}
-
-		jLatest := articlesRoots[j].LatestReply
-		if jLatest <= 0 {
-			jLatest = articlesRoots[j].Date
-		}
-
-		return iLatest > jLatest
-	})
-
-	return articles, articlesRoots, nil
 }

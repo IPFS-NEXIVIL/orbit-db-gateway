@@ -8,15 +8,9 @@ import (
 )
 
 type Data struct {
-	ID          string `mapstructure:"id" json:"-" validate:"uuid_rfc4122"`
-	InReplyToID string `mapstructure:"in-reply-to-id" json:"-" validate:"omitempty,uuid_rfc4122"`
-	Date        int64  `mapstructure:"date" json:"-" validate:"required,number"`
-	Body        string `mapstructure:"body" json:"-" validate:"required,min=3,max=524288"`
-
-	Replies     []*Data `mapstructure:"-" json:"-" validate:"-"`
-	LatestReply int64   `mapstructure:"-" json:"-" validate:"-"`
-
-	Read bool `mapstructure:"-" json:"read" validate:"-"`
+	ID      string `mapstructure:"id" json:"-" validate:"uuid_rfc4122"`
+	Date    int64  `mapstructure:"date" json:"-" validate:"required,number"`
+	Content string `form:"content" binding:"required"`
 }
 
 func NewData() *Data {
@@ -34,7 +28,6 @@ func (data *Data) IsValid() (bool, error) {
 	validate := validator.New()
 	errs := validate.Struct(data)
 	if errs != nil {
-		// validationErrors := errs.(validator.ValidationErrors)
 		return false, errs
 	}
 

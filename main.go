@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
 	"path"
 	"runtime"
+	"time"
 
+	"berty.tech/go-orbit-db/iface"
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/cache"
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/config"
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/database"
@@ -76,7 +79,47 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	log.Println("connecting database end")
+
+	go func() {
+		for {
+			_, err := db.IPFSCoreAPI.Swarm().Peers(context.Background())
+			if err != nil {
+				log.Panicln(err)
+			}
+			time.Sleep(time.Second * 5)
+		}
+	}()
+
+	go func() {
+		var input string
+		for {
+			fmt.Scanln(&input)
+
+			switch input {
+			case "q":
+				return
+			case "g":
+				fmt.Scanln(&input)
+				docs, err := db.Store.Get(ctx, input, &iface.DocumentStoreGetOptions{CaseInsensitive: false})
+				if err != nil {
+
+					log.Println(err)
+				} else {
+					log.Println(docs)
+				}
+			case "l":
+				docs, err := db.Store.Query(ctx, func(e interface{}) (bool, error) {
+					return true, nil
+				})
+				if err != nil {
+					log.Println(err)
+				} else {
+					log.Println(docs)
+				}
+			}
+
+		}
+	}()
 
 	// Create content storage directories
 	if err := os.MkdirAll(path.Join("files", "text"), 0755); err != nil {
@@ -93,8 +136,11 @@ func main() {
 
 	ipfs := router.Group("/ipfs")
 	{
-		ipfs.POST("/paste", paste)
-		ipfs.POST("/upload", upload)
+		dbInfo := DBInfo{
+			DB: db,
+		}
+		// save and get data to orbit db
+		ipfs.POST("/paste", dbInfo.paste)
 	}
 
 	router.Run("localhost:8001")
