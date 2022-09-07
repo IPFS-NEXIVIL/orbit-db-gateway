@@ -14,6 +14,7 @@ import (
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/config"
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/database"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -106,6 +107,16 @@ func main() {
 				} else {
 					log.Println(docs)
 				}
+			case "p":
+				id, _ := uuid.NewUUID()
+				log.Print(id.String())
+				_, err = db.Store.Put(ctx, map[string]interface{}{"_id": id.String(), "hello": "world"})
+				if err != nil {
+					log.Println(err)
+					log.Println("Error")
+				} else {
+					log.Println(id)
+				}
 			case "l":
 				docs, err := db.Store.Query(ctx, func(e interface{}) (bool, error) {
 					return true, nil
@@ -129,6 +140,7 @@ func main() {
 		}
 		// save and get data to orbit db
 		ipfs.POST("/paste", dbInfo.paste)
+		ipfs.GET("/get/:id", dbInfo.get)
 	}
 
 	router.Run("localhost:8001")

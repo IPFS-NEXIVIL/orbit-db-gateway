@@ -60,3 +60,21 @@ func (database DBInfo) paste(c *gin.Context) {
 
 	c.String(http.StatusOK, "data %s save to orbit db success", data.Content)
 }
+
+func (database DBInfo) get(c *gin.Context) {
+	// our orbit db
+	db := database.DB
+
+	id := c.Param("id")
+
+	nexivilData, err := db.GetDataByID(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":      nexivilData.ID,
+		"data":    nexivilData.Date,
+		"content": nexivilData.Content,
+	})
+}
