@@ -74,7 +74,7 @@ func (database DBInfo) get(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":      nexivilData.ID,
-		"data":    nexivilData.Date,
+		"date":    nexivilData.Date,
 		"content": nexivilData.Content,
 	})
 }
