@@ -9,6 +9,7 @@ import (
 
 type Data struct {
 	ID      string `mapstructure:"id" json:"-" validate:"uuid_rfc4122"`
+	Project string
 	Date    int64  `mapstructure:"date" json:"-" validate:"required,number"`
 	Content string `form:"content" binding:"required"`
 }

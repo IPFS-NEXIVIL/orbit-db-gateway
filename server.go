@@ -22,7 +22,7 @@ type UploadFile struct {
 	File *multipart.FileHeader `form:"file" binding:"required"`
 }
 
-func (database DBInfo) saveAndGetDBData(data string) models.Data {
+func (database DBInfo) saveAndGetDBData(content string, project string) models.Data {
 	// our orbit db
 	db := database.DB
 
@@ -30,7 +30,8 @@ func (database DBInfo) saveAndGetDBData(data string) models.Data {
 	newData := models.NewData()
 	log.Println(newData)
 
-	newData.Content = data
+	newData.Content = content
+	newData.Project = project
 
 	// insert `content` data to orbit db
 	db.SubmitData(newData)
@@ -47,6 +48,7 @@ func (database DBInfo) paste(c *gin.Context) {
 	// json data
 	type ContentRequestBody struct {
 		Content string `json:"content"`
+		Project string `json:"project"`
 	}
 
 	var requestBody ContentRequestBody
@@ -56,9 +58,9 @@ func (database DBInfo) paste(c *gin.Context) {
 
 	c.BindJSON(&requestBody)
 
-	data := database.saveAndGetDBData(requestBody.Content)
+	data := database.saveAndGetDBData(requestBody.Content, requestBody.Project)
 
-	c.String(http.StatusOK, "data %s save to orbit db success", data.Content)
+	c.String(http.StatusOK, "%s data %s save to orbit db success", data.Project, data.Content)
 }
 
 func (database DBInfo) get(c *gin.Context) {
@@ -74,6 +76,7 @@ func (database DBInfo) get(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":      nexivilData.ID,
+		"project": nexivilData.Project,
 		"date":    nexivilData.Date,
 		"content": nexivilData.Content,
 	})
