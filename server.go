@@ -4,6 +4,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"time"
 
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/database"
 	"github.com/IPFS-NEXIVIL/orbit-db-gateway/models"
@@ -74,10 +75,14 @@ func (database DBInfo) get(c *gin.Context) {
 		log.Fatal(err)
 	}
 
+	date := nexivilData.Date
+
+	MillisecondsToDate := time.Unix(0, date*int64(time.Millisecond)).Format("2006-01-02 15:04:05")
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":      nexivilData.ID,
 		"project": nexivilData.Project,
-		"date":    nexivilData.Date,
+		"date":    MillisecondsToDate,
 		"content": nexivilData.Content,
 	})
 }
