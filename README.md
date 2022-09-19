@@ -14,7 +14,8 @@ go run .
 
 ```
 {
-    "content": "content"
+    "content": "test content",
+    "project": "example project"
 }
 ```
 
@@ -26,8 +27,9 @@ go run .
 
 ```
 {
-    "content": "testtesttestrimi",
-    "date": 1661317218848,
-    "id": "a664660e-2369-11ed-aa3c-3ccd36628b4c"
+    "content": "test content",
+    "date": "2022-08-24 15:34:40",
+    "id": "d4c03a84-2376-11ed-b61b-3ccd36628b4c",
+    "project": "example project"
 }
 ```
